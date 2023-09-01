@@ -225,7 +225,7 @@ async def buyPetCrumbs(client: Client):
     await client.mouse_handler.click(480, 525) #clicks the pack
     '''
     await client.mouse_handler.click(1527, 128) #clicks wishlist
-    await client.mouse_handler.click(1527, 128) #clicks pack
+    await client.mouse_handler.click(473, 236) #clicks pack
     await client.mouse_handler.click(3330, 792) #clicks switch to gold
     await client.mouse_handler.click(1496, 761) #clicks the buy button
     await asyncio.sleep(0.2)
@@ -254,7 +254,6 @@ async def main():
     print('Auto Pet Crumb Bot by Lxghtend')
     print('''Credits: notfaj - helped me with functions for reading text windows.
          starrfox - helped me out with everything.''')
-    print('LINE 277 IS WRONG FIX IT') #remove this
     input('Press Enter when the pet you want to train is equipped and the Pet Bread Crumb Pack is the ONLY thing on your wishlist.')
     await setup()
 
