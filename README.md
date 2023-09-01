@@ -3,6 +3,8 @@
                                              Auto Pet Crumb Feeder by Lxghtend
 
 ***THIS PROJECT IS A WORK IN PROGRESS.  PLEASE MESSAGE ME IF YOU GET AN ERROR***
+
+***THIS BOT WILL ONLY WORK IN MAXIMIZED RESOLUTION DUE TO THE WAY THE CROWN SHOP NAVIGATION WORKS***
                                              
 This bot will buy pet crumb booster packs (7 at a time) from the crown shop for 500 gold each  (3500).
 
