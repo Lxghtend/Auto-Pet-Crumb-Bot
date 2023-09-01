@@ -17,9 +17,11 @@ spellBookDecorationIcon = ["WorldView", "DeckConfiguration", "FurnitureSpellbook
 petLevelUpClose = ["WorldView", "", "PetLevelUpWindow", "wndPetLevelBkg", "btnPetLevelClose"]
 charStats = ["WorldView", "DeckConfiguration", "CharStats"]
 crownsInvoiceClose = ["WorldView", "CrownShopDelInvoiceModalWindow", "CrownShopDelInvoice", "closeDeliveryInvoiceWindow"]
-'''treasureCardButton = 
+'''
+treasureCardButton = 
 deathSchoolButton =
-sellAllButton = '''
+sellAllButton = 
+'''
 quitButton = ['WorldView', 'DeckConfiguration', 'SettingPage', 'QuitButton']
 logOutConfirm = ['MessageBoxModalWindow', 'messageBoxBG', 'messageBoxLayout', 'AdjustmentWindow', 'Layout', 'centerButton']
 txtLocation  = ['WorldView', 'mainWindow', 'sprSubBanner', 'txtLocation']
@@ -88,24 +90,30 @@ async def readGoldAmount(client: Client) -> str: # just copied the other ones ig
 async def checkBackPackSpace(client: Client):
     backPackSpace = await readBackPackSpace(client)
     backPackSpace =  backPackSpace.split("/")
-    backPackSpace = int(backPackSpace[0])
-    x = "Clear your bag! You need 49 space available. You have "
-    y = backPackSpace - 150 * -1
-    z = "."
-    if backPackSpace > 101:
-        print(x, y, z)
+    backPackSpace = backPackSpace[0]
+    backPackSpace = int(backPackSpace)
+    backPackSpace = ((backPackSpace - 150)*-1)
+    x = "Clear your bag! You need 49 space available. You have"
+    y = backPackSpace
+    z = 'space availible.'
+    if backPackSpace > 49:
+        print(x,y,z)
+        input('Press Enter after you have cleared up space in your bag.')
+        '''
+        more unused code in case the user isnt looking
         print("Closing in 3.")
         await asyncio.sleep(1)
         print("Closing in 2.")
         await asyncio.sleep(1)
         print("Closing in 1.")
         await client.close()
-    if backPackSpace <= 101:
+        '''
+    if backPackSpace <= 49:
         await client.send_key(Keycode.U)
 
 async def detectPetLevelUp(client: Client): # faj basically redid this for me
     petLevelUpAnnoucement = await readPetLevelUp(client)
-    petLevelUpAnnoucement = petLevelUpAnnoucement.split("HAS LEVELED UP TO")[1]
+    petLevelUpAnnoucement = petLevelUpAnnoucement.split("HAS LEVELED UP TO ")[1]
     match petLevelUpAnnoucement:
         case "TEEN!":
             input("Pet has leveled up to Teen!  Press Enter to continue to Adult.")
@@ -127,29 +135,34 @@ async def detectPetLevelUp(client: Client): # faj basically redid this for me
 async def feedPetCrumbs(client: Client):
     if await is_visible_by_path(client.root_window, spellBookDecorationIcon):
         pass
-    else: await client.send_key(Keycode.U)
+    else: 
+        await client.send_key(Keycode.U)
     await click_window_from_path(client.mouse_handler, client.root_window, spellBookDecorationIcon)
-    if is_visible_by_path(client.root_window, feedToPet): #ask faj how to know if a button is greyed out
+    if is_visible_by_path(client.root_window, feedToPet):
         for i in range(49):
             await click_window_from_path(client.mouse_handler, client.root_window, feedToPet)
             await client.send_key(Keycode.ENTER)
             if await is_visible_by_path(client.root_window, petHasImprovedClose):
                 await click_window_until_gone(client.root_window, petHasImprovedClose)
+            if await is_visible_by_path(client.root_window, petLevelUpClose):
+                await detectPetLevelUp(client)
             await asyncio.sleep(0.1)
-        if await is_visible_by_path(client.root_window, petLevelUpClose):
-            await detectPetLevelUp(client)
     else:
         await buyPetCrumbs(client)
 
 async def checkGoldAmount(client: Client):
     goldCharStat = await readGoldAmount(client)
     goldCharStat = goldCharStat.split("/")
-    goldCharStat = int(goldCharStat[0])
-    x = "You have "
+    goldCharStat = goldCharStat[0]
+    goldCharStat = int(goldCharStat)
+    x = "You have"
     y = goldCharStat
-    z = " gold!"
+    z = "gold!"
     if goldCharStat < 500:
-        print(x, y, z)
+        print(x,y,z)
+        input('Press Enter after you have gold to start training.') #i should probably add a failsafe here?
+        '''
+        #kinda dont want this code in case they arent looking, also could add a restart?
         print("Closing in 3.")
         await asyncio.sleep(1)
         print("Closing in 2.")
@@ -157,6 +170,7 @@ async def checkGoldAmount(client: Client):
         print("Closing in 1.")
         await asyncio.sleep(1)
         await client.close()
+        '''
     else:
         await client.send_key(Keycode.C)
 
@@ -187,12 +201,19 @@ async def sellEmpowers(p, client: Client):
 async def buyPetCrumbs(client: Client):
     await checkGoldAmount(client)
     await checkBackPackSpace(client)
+    '''
+    # this is the ideal way to do it but the root wont work for some reason, plz dm if u can fix this
     if await is_visible_by_path(client.root_window, spellBookClose):
         await click_window_until_gone(client.root_window, spellBookClose)
         await asyncio.sleep(0.1)
+    '''
+    if await is_visible_by_path(client.root_window, spellBookDecorationIcon):
+        await client.send_key(Keycode.U)
+    if await is_visible_by_path(client.root_window, charStats):
+        await client.send_key(Keycode.C)
     await click_window_from_path(client.mouse_handler, client.root_window,  crownShopButton)
     await asyncio.sleep(2)
-    #  scrapped cuz it DOESNT WORK but it is the most practical way :(
+    #  scrapped cuz it DOESNT WORK but it is the most practical way :(, dm if u know how to use search bar
     '''
     await client.mouse_handler.click(1299, 115) #clicks the housing tab
     await client.mouse_handler.click(1359, 216) #clicks the search bar
@@ -233,6 +254,7 @@ async def main():
     print('Auto Pet Crumb Bot by Lxghtend')
     print('''Credits: notfaj - helped me with functions for reading text windows.
          starrfox - helped me out with everything.''')
+    print('LINE 277 IS WRONG FIX IT') #remove this
     input('Press Enter when the pet you want to train is equipped and the Pet Bread Crumb Pack is the ONLY thing on your wishlist.')
     await setup()
 
