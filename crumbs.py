@@ -28,6 +28,7 @@ logOutConfirm = ['MessageBoxModalWindow', 'messageBoxBG', 'messageBoxLayout', 'A
 txtLocation  = ['WorldView', 'mainWindow', 'sprSubBanner', 'txtLocation']
 playButton = ['WorldView', 'mainWindow', 'btnPlay']
 petHasImprovedClose = ["WorldView", "DeckConfiguration", "FurnitureSpellbookPage", "PetGameRewards", "btnBack"]
+confirmFeedToPet = ["WorldView", "DeckConfiguration", "MessageBoxModalWindow", "messageBoxBG", "messageBoxLayout", "AdjustmentWindow", "Layout", "leftButton"]
 
 async def is_visible_by_path(base_window:Window, path: list[str]):
     # Credit to SirOlaf for the original function; I'm modifying it - credit ultimate314
@@ -91,19 +92,24 @@ async def readGoldAmount(client: Client) -> str: # just copied the other ones ig
     
 async def checkBackPackSpace(client: Client):
     backPackSpace = await readBackPackSpace(client)
-    backPackSpaceNeeded = backPackSpace
-    backPackSpace = re.findall("\d+", backPackSpace)[0] #remove everything that isnt a number, and remove everything after
-    backPackSpaceNeeded = re.findall("\d+", backPackSpaceNeeded)[1]
-    backPackSpace = int(backPackSpace)
-    backPackSpaceNeeded = int(backPackSpaceNeeded)
-    backPackSpaceNeeded = backPackSpaceNeeded - backPackSpace
-    backPackSpace = (backPackSpace-150)*-1
+    backPackSpaceNeeded = backPackSpace #make a second one that is identical
+    maxBackPackSpace = backPackSpace #a third
+    maxBackPackSpace = backPackSpaceNeeded = re.findall("\d+", maxBackPackSpace)[1]
+    backPackSpace = re.findall("\d+", backPackSpace)[0] #remove everything that isnt a number, and remove everything after the /
+    backPackSpaceNeeded = re.findall("\d+", backPackSpaceNeeded)[1] #do the same thing except remove everything before the /
+    backPackSpace = int(backPackSpace) #set at int
+    backPackSpaceNeeded = int(backPackSpaceNeeded) #set as int
+    maxBackPackSpace = int(maxBackPackSpace) #set as int, this was needed incase ppl havve increase bag space exilirs
+    backPackSpaceNeeded = backPackSpaceNeeded - backPackSpace #little math
+    backPackSpace = (backPackSpace - maxBackPackSpace)*-1 #backpackspace would be like 100, showing how many you had, so this would flip it to how much space you have left
     x = "Clear your bag! You need 49 space available. You have"
     y = backPackSpaceNeeded
     z = 'space availible.'
     if backPackSpace < 49:
         print(x,y,z)
+        await client.close()
         input('Press Enter after you have cleared up space in your bag.')
+        await setup()
         '''
         more unused code in case the user isnt looking
         print("Closing in 3.")
@@ -138,20 +144,26 @@ async def detectPetLevelUp(client: Client): # faj basically redid this for me
             await client.close() # removes hooks and closes :O
 
 async def feedPetCrumbs(client: Client):
+    print('Feeding the crumbs to your pet...')
     if await is_visible_by_path(client.root_window, spellBookDecorationIcon):
         pass
     else: 
         await client.send_key(Keycode.U)
     await click_window_from_path(client.mouse_handler, client.root_window, spellBookDecorationIcon)
-    if is_visible_by_path(client.root_window, feedToPet):
+    if await is_visible_by_path(client.root_window, feedToPet):
         for i in range(49):
             await click_window_from_path(client.mouse_handler, client.root_window, feedToPet)
-            await client.send_key(Keycode.ENTER)
-            if await is_visible_by_path(client.root_window, petHasImprovedClose):
-                await click_window_until_gone(client.root_window, petHasImprovedClose)
-            if await is_visible_by_path(client.root_window, petLevelUpClose):
-                await detectPetLevelUp(client)
             await asyncio.sleep(0.1)
+            await click_window_from_path(client.mouse_handler, client.root_window, confirmFeedToPet)
+            await asyncio.sleep(0.1)
+            while await is_visible_by_path(client.root_window, petHasImprovedClose):
+                await asyncio.sleep(0.1)
+                await click_window_from_path(client.mouse_handler, client.root_window, petHasImprovedClose)
+            if await is_visible_by_path(client.root_window, petLevelUpClose):
+                await asyncio.sleep(3)
+                await detectPetLevelUp(client)
+            await asyncio.sleep(0.5)
+        await buyPetCrumbs(client)
     else: # if i got res to work id have to updt this
         await buyPetCrumbs(client)
 
@@ -243,8 +255,13 @@ async def buyPetCrumbs800x600():
 '''
 
 async def buyPetCrumbs(client: Client):
+    print('Checking gold...')
     await checkGoldAmount(client)
+    print('Done!')
+    print('Checking Backpack...')
     await checkBackPackSpace(client)
+    print('Done!')
+    print('Buying Pet Crumbs...')
     '''
     # this is the ideal way to do it but the root wont work for some reason, plz dm if u can fix this
     if await is_visible_by_path(client.root_window, spellBookClose):
@@ -269,17 +286,25 @@ async def buyPetCrumbs(client: Client):
     await client.mouse_handler.click(480, 525) #clicks the pack
     '''
     await client.mouse_handler.click(1527, 128) #clicks wishlist
+    await asyncio.sleep(1)
     await client.mouse_handler.click(473, 236) #clicks pack
-    await client.mouse_handler.click(3330, 792) #clicks switch to gold
+    await asyncio.sleep(1)
+    await client.mouse_handler.click(1400, 701) #clicks switch to gold
+    await client.mouse_handler.click(1400, 701) #clicks switch to gold
+    await client.mouse_handler.click(1400, 701) #clicks switch to gold
+    await asyncio.sleep(1)
     await client.mouse_handler.click(1496, 761) #clicks the buy button
     await asyncio.sleep(0.2)
-    for i in range(7): #repeat 7 times
+    for i in range(6): #repeat 6 times to buy 7 packs
+        await asyncio.sleep(0.2)
         await client.mouse_handler.click(891, 453) #clicks the up arrow
     await client.mouse_handler.click(724, 608) #clicks the buy button
-    for i in range(7): #repeat 7 times
-        await asyncio.sleep(0.3)
+    for i in range(10): #repeat 10 times cuz it was not working with 7
+        await asyncio.sleep(1)
         await client.mouse_handler.click(949, 791) #clicks the continue button
+    await asyncio.sleep(1)
     await client.mouse_handler.click(1571, 26) #clicks the close crown shop button
+    await asyncio.sleep(0.5)
     await click_window_from_path(client.mouse_handler, client.root_window, crownsInvoiceClose) #closes invoice
     await client.send_key(Keycode.ENTER) #closes popup
     await feedPetCrumbs(client)
@@ -298,7 +323,6 @@ async def main():
     print('Auto Pet Crumb Bot by Lxghtend')
     print('''Credits: notfaj - helped me with functions for reading text windows.
          starrfox - helped me out with everything.''')
-    print("explain bagspacecheck later")
     input('Press Enter when the pet you want to train is equipped and the Pet Bread Crumb Pack is the ONLY thing on your wishlist.')
     await setup()
 
