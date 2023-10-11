@@ -9,6 +9,7 @@ from wizwalker.memory import Window
 from wizwalker import Client, client
 from wizwalker.memory.memory_objects.window import Window
 from wizwalker import ClientHandler
+import pyautogui
 
 #paths for clicking and checking
 crownShopButton = ["WorldView", "windowHUD", "CrownShopButtonsWindow"]
@@ -285,25 +286,33 @@ async def buyPetCrumbs(client: Client):
     await client.send_key(Keycode.B)
     await client.mouse_handler.click(480, 525) #clicks the pack
     '''
-    await client.mouse_handler.click(1527, 128) #clicks wishlist
+    packs = pyautogui.locateCenterOnScreen("packs.png") #clicks pack tab
+    await pyautogui.click(packs)
     await asyncio.sleep(1)
-    await client.mouse_handler.click(473, 236) #clicks pack
+    search = pyautogui.locateCenterOnScreen("search.png") #clicks search bar
+    await pyautogui.click(search)
+    crumb = "crumb"
+    await pyautogui.write(crumb) #searches for the pack
+    asyncio.sleep(0.5)
+    pack = pyautogui.locateCenterOnScreen("pack.png") #clicks pack
+    await pyautigui.click(pack)
     await asyncio.sleep(1)
-    await client.mouse_handler.click(1400, 701) #clicks switch to gold
-    await client.mouse_handler.click(1400, 701) #clicks switch to gold
-    await client.mouse_handler.click(1400, 701) #clicks switch to gold
+    gold = pyautogui.locateCenterOnScreen("gold.png") #clicks switch to gold
+    await pyautogui.click(gold)
+    await pyautogui.click(gold)
+    await pyautogui.click(gold)
     await asyncio.sleep(1)
-    await client.mouse_handler.click(1496, 761) #clicks the buy button
+    await pyautogui.locateCenterOnScreen("buy1.png") #clicks the buy button
     await asyncio.sleep(0.2)
     for i in range(6): #repeat 6 times to buy 7 packs
         await asyncio.sleep(0.2)
-        await client.mouse_handler.click(891, 453) #clicks the up arrow
-    await client.mouse_handler.click(724, 608) #clicks the buy button
+        await pyautogui.locateCenterOnScreen("up.png") #clicks the up arrow
+    await pyautogui.locateCenterOnScreen("buy2.png") #clicks the buy button
     for i in range(10): #repeat 10 times cuz it was not working with 7
         await asyncio.sleep(1)
-        await client.mouse_handler.click(949, 791) #clicks the continue button
+        await pyautogui.locateCenterOnScreen("continue.png") #clicks the continue button
     await asyncio.sleep(1)
-    await client.mouse_handler.click(1571, 26) #clicks the close crown shop button
+    await pyautogui.locateCenterOnScreen("close.png") #clicks the close crown shop button
     await asyncio.sleep(0.5)
     await click_window_from_path(client.mouse_handler, client.root_window, crownsInvoiceClose) #closes invoice
     await client.send_key(Keycode.ENTER) #closes popup
